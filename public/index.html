@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#FF6B2B">
+<title>PickUp.Shop.Deliver.</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF6B2B;
+    --orange-light: #FF8C55;
+    --orange-pale: #FFF0E8;
+    --dark: #1A1208;
+    --mid: #4A3728;
+    --cream: #FFFDF9;
+    --warm-gray: #F5F0EB;
+    --border: #E8DDD4;
+    --shadow: 0 4px 24px rgba(26,18,8,0.10);
+    --shadow-hover: 0 10px 36px rgba(255,107,43,0.22);
+    --radius: 16px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--dark);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% -10%, #FFE0CC44 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 110%, #FFD4B844 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Contact strip ── */
+  .contact-strip {
+    background: var(--orange);
+    color: white;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    position: relative;
+    z-index: 20;
+    line-height: 1.4;
+  }
+  .contact-strip a {
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* ── Header ── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,253,249,0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--orange);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .logo span { color: var(--dark); }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--orange);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .tagline {
+    font-size: 0.75rem;
+    color: var(--mid);
+    font-style: italic;
+    text-align: right;
+  }
+
+  /* ── Pages ── */
+  .page {
+    position: relative;
+    z-index: 1;
+    display: none;
+    min-height: calc(100dvh - 96px);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px 40px;
+    animation: fadeUp 0.35s cubic-bezier(0.22,0.61,0.36,1) both;
+  }
+  .page.active { display: flex; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Card ── */
+  .card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 28px 24px 32px;
+    width: 100%;
+    max-width: 640px;
+  }
+
+  .question {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(1.3rem, 4vw, 1.7rem);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .question-sub {
+    font-size: 0.9rem;
+    color: var(--mid);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* ── Back button ── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--mid);
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 20px;
+    border: none;
+    background: none;
+    padding: 8px 0;
+    font-family: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .back-link:active { color: var(--orange); }
+
+  /* ── Progress dots ── */
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s, transform 0.3s;
+    flex-shrink: 0;
+  }
+  .dot.done { background: var(--orange); }
+  .dot.active { background: var(--orange); transform: scale(1.4); }
+  .progress-label { font-size: 0.75rem; color: var(--mid); margin-left: 6px; }
+
+  /* ── Option buttons (big tap targets) ── */
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    border: 2.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+    min-height: 80px;
+  }
+  .option-btn::after {
+    content: '›';
+    position: absolute;
+    right: 18px;
+    font-size: 1.4rem;
+    color: var(--border);
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .option-btn:hover,
+  .option-btn:focus {
+    border-color: var(--orange);
+    box-shadow: var(--shadow-hover);
+    outline: none;
+  }
+  .option-btn:hover::after,
+  .option-btn:focus::after { color: var(--orange); }
+  .option-btn:active { transform: scale(0.985); }
+
+  .option-icon {
+    font-size: 1.9rem;
+    flex-shrink: 0;
+    width: 50px; height: 50px;
+    background: var(--warm-gray);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .option-btn:hover .option-icon,
+  .option-btn:focus .option-icon { background: var(--orange-pale); }
+
+  .option-text { flex: 1; padding-right: 20px; }
+  .option-name {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--dark);
+    margin-bottom: 2px;
+  }
+  .option-desc {
+    font-size: 0.8rem;
+    color: var(--mid);
+    line-height: 1.4;
+  }
+
+  /* ── Pricing box ── */
+  .pricing-box {
+    background: var(--warm-gray);
+    border-radius: 13px;
+    padding: 18px 18px;
+    margin-bottom: 22px;
+    border: 1.5px solid var(--border);
+  }
+  .pricing-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--orange);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .pricing-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .pricing-row:last-child { border-bottom: none; }
+  .pricing-distance { color: var(--mid); }
+  .pricing-amount {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 0.97rem;
+    color: var(--dark);
+  }
+  .pricing-note {
+    font-size: 0.75rem;
+    color: #9A8070;
+    margin-top: 9px;
+    font-style: italic;
+  }
+
+  /* ── Store pricing grid ── */
+  .store-pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .store-price-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 12px;
+    text-align: center;
+  }
+  .store-price-card.full {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+  .store-name-badge {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin-bottom: 3px;
+  }
+  .store-price-val {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--orange);
+  }
+  .store-price-label { font-size: 0.68rem; color: var(--mid); }
+
+  /* ── Forms ── */
+  .form-group { margin-bottom: 18px; }
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--mid);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  input, textarea {
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: 11px;
+    padding: 14px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; /* prevents iOS zoom */
+    color: var(--dark);
+    background: var(--warm-gray);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--orange);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255,107,43,0.10);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.55;
+  }
+  .input-hint {
+    margin-top: 5px;
+    font-size: 0.76rem;
+    color: #9A8070;
+    font-style: italic;
+  }
+
+  /* ── Emphasis box ── */
+  .emphasis-box {
+    background: linear-gradient(135deg, #FFF3E0, #FFE8D0);
+    border-left: 4px solid var(--orange);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+    font-size: 0.86rem;
+    color: #7A4520;
+    line-height: 1.55;
+  }
+  .emphasis-box strong { color: var(--orange); }
+
+  /* ── Submit button ── */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 17px 28px;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+    box-shadow: 0 4px 18px rgba(255,107,43,0.30);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    text-decoration: none;
+    text-align: center;
+  }
+  .btn:hover { background: var(--orange-light); box-shadow: 0 6px 24px rgba(255,107,43,0.38); }
+  .btn:active { transform: scale(0.97); }
+
+  /* ── Success ── */
+  .success-icon {
+    width: 68px; height: 68px;
+    background: linear-gradient(135deg, #2ECC71, #27AE60);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.9rem;
+    margin: 0 auto 18px;
+    box-shadow: 0 6px 24px rgba(46,204,113,0.28);
+    animation: popIn 0.45s cubic-bezier(0.22,0.61,0.36,1) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.3); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+  .success-card { text-align: center; }
+  .order-summary {
+    background: var(--warm-gray);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 18px 0;
+    text-align: left;
+    font-size: 0.88rem;
+    color: var(--mid);
+    line-height: 1.8;
+    word-break: break-word;
+  }
+  .order-summary strong { color: var(--dark); }
+
+  .sms-note {
+    background: #E8F5E9;
+    border: 1.5px solid #A5D6A7;
+    border-radius: 11px;
+    padding: 13px 16px;
+    font-size: 0.84rem;
+    color: #2E7D32;
+    margin-bottom: 18px;
+    line-height: 1.5;
+    text-align: left;
+  }
+  .sms-note strong { display: block; margin-bottom: 2px; }
+
+  /* ── Safe area padding for notched phones ── */
+  .page { padding-bottom: max(40px, env(safe-area-inset-bottom)); }
+  header { padding-top: max(14px, env(safe-area-inset-top)); }
+
+  /* ── Loading Screen ── */
+  .loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--cream);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px 40px;
+    overflow-y: auto;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+  .loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .loading-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 28px 24px 32px;
+    width: 100%;
+    max-width: 640px;
+    animation: fadeUp 0.35s cubic-bezier(0.22,0.61,0.36,1) both;
+  }
+  .loading-header {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .loading-logo {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--orange);
+    margin-bottom: 6px;
+  }
+  .loading-logo span { color: var(--dark); }
+  .loading-msg {
+    font-size: 0.92rem;
+    color: var(--mid);
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+  .loading-spinner {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .loading-status {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.82rem;
+    color: var(--orange);
+    font-weight: 600;
+    margin-top: 8px;
+  }
+  .loading-divider {
+    border: none;
+    border-top: 1.5px solid var(--border);
+    margin: 18px 0;
+  }
+  .loading-section-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--orange);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .loading-service {
+    background: var(--warm-gray);
+    border-radius: 13px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1.5px solid var(--border);
+  }
+  .loading-service-name {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+  .loading-service-desc {
+    font-size: 0.8rem;
+    color: var(--mid);
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+  .loading-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 0.84rem;
+  }
+  .loading-price-row + .loading-price-row {
+    border-top: 1px solid var(--border);
+  }
+  .loading-price-label { color: var(--mid); }
+  .loading-price-amount {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: var(--dark);
+  }
+  .loading-contact {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 0.85rem;
+    color: var(--mid);
+  }
+  .loading-contact a {
+    color: var(--orange);
+    font-weight: 700;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════
+  LOADING SCREEN — shows while server wakes up
+══════════════════════════ -->
+<div class="loading-screen" id="loading-screen">
+  <div class="loading-card">
+    <div class="loading-header">
+      <div style="font-size:2.2rem;margin-bottom:8px">🛵</div>
+      <div class="loading-logo">PickUp.Shop.<span style="margin:0;padding:0">Deliver.</span></div>
+      <div class="loading-msg">Getting things ready for you...</div>
+      <div class="loading-status"><span class="loading-spinner"></span> Loading, one moment please</div>
+    </div>
+
+    <hr class="loading-divider">
+
+    <div class="loading-section-title">📦 Pickup & Delivery</div>
+    <div class="loading-service-desc" style="margin-bottom:10px;font-size:0.82rem;color:var(--mid)">Your order is already prepaid and ready — we pick it up and bring it to you.</div>
+    <div class="loading-service">
+      <div class="loading-service-name">🍔 Food & 🛒 Groceries</div>
+      <div class="loading-price-row"><span class="loading-price-label">Under 1 mile</span><span class="loading-price-amount">$5.00</span></div>
+      <div class="loading-price-row"><span class="loading-price-label">1 – 2 miles</span><span class="loading-price-amount">$7.00</span></div>
+      <div class="loading-price-row"><span class="loading-price-label">2 – 3 miles</span><span class="loading-price-amount">$10.00</span></div>
+    </div>
+
+    <hr class="loading-divider">
+
+    <div class="loading-section-title">🛍️ Payment Upon Delivery</div>
+    <div class="loading-service-desc" style="margin-bottom:10px;font-size:0.82rem;color:var(--mid)">We shop for you and you pay for everything once it's delivered.</div>
+    <div class="loading-service">
+      <div class="loading-service-name">🍔 Food</div>
+      <div class="loading-price-row"><span class="loading-price-label">All Restaurants</span><span class="loading-price-amount">$10.00</span></div>
+      <div style="font-size:0.75rem;color:#9A8070;font-style:italic;margin-top:8px">For restaurants without online ordering (like In-N-Out).</div>
+    </div>
+    <div class="loading-service">
+      <div class="loading-service-name">🛒 Groceries</div>
+      <div class="loading-price-row"><span class="loading-price-label">Trader Joe's</span><span class="loading-price-amount">$15.00</span></div>
+      <div class="loading-price-row"><span class="loading-price-label">Costco</span><span class="loading-price-amount">$30.00</span></div>
+    </div>
+
+    <div style="font-size:0.75rem;color:#9A8070;font-style:italic;margin-top:6px">Service fee is in addition to the cost of your items. You pay for everything upon delivery. Stores like Target, Whole Foods, and Ralphs offer online ordering — use Pickup &amp; Delivery instead, it's cheaper!</div>
+
+    <hr class="loading-divider">
+
+    <div class="loading-contact">
+      Questions? Text us: <a href="sms:+13013950442">(301) 395-0442</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Ping the server — once it responds, hide the loading screen
+  (async function() {
+    try {
+      const res = await fetch('/api/health', { cache: 'no-store' });
+      if (res.ok) {
+        document.getElementById('loading-screen').classList.add('hidden');
+      }
+    } catch(e) {
+      // If first attempt fails, retry every 2 seconds
+      const retry = setInterval(async () => {
+        try {
+          const res = await fetch('/api/health', { cache: 'no-store' });
+          if (res.ok) {
+            clearInterval(retry);
+            document.getElementById('loading-screen').classList.add('hidden');
+          }
+        } catch(e) {}
+      }, 2000);
+    }
+  })();
+</script>
+
+<div class="contact-strip">
+  Questions? Text us: <a href="sms:+13013950442">(301) 395-0442</a>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🛵</div>
+    <div>PickUp.Shop.<span style="color:var(--dark)">Deliver.</span></div>
+  </div>
+  <div class="tagline">Exclusive Service for<br>AVA Arts District Residents!</div>
+</header>
+
+
+<!-- ═══════════════════════
+  STEP 1 — Service type
+══════════════════════════ -->
+<div class="page active" id="page-1">
+  <div class="card">
+    <div class="question">What type of delivery do you need?</div>
+    <div class="question-sub">Tap an option to get started.</div>
+
+    <div class="options-list">
+
+      <button class="option-btn" onclick="goTo('page-2-pickup')">
+        <div class="option-icon">📦</div>
+        <div class="option-text">
+          <div class="option-name">Pickup &amp; Delivery</div>
+          <div class="option-desc">Your order is already prepaid and ready — we pick it up and bring it to you.</div>
+        </div>
+      </button>
+
+      <button class="option-btn" onclick="goTo('page-2-payment')">
+        <div class="option-icon">🛍️</div>
+        <div class="option-text">
+          <div class="option-name">Payment Upon Delivery</div>
+          <div class="option-desc">We shop for you and you pay for everything once it's delivered.</div>
+        </div>
+      </button>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════
+  STEP 2A — Pickup: what type?
+══════════════════════════ -->
+<div class="page" id="page-2-pickup">
+  <div class="card">
+    <button class="back-link" onclick="goTo('page-1')">← Back</button>
+    <div class="progress">
+      <div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+      <span class="progress-label">Step 2 of 4</span>
+    </div>
+    <div class="question">What is being picked up and delivered?</div>
+    <div class="question-sub">Select what your order contains.</div>
+
+    <div class="options-list">
+      <button class="option-btn" onclick="goTo('page-3-pickup-food')">
+        <div class="option-icon">🍔</div>
+        <div class="option-text">
+          <div class="option-name">Food</div>
+          <div class="option-desc">A restaurant order that is already paid and ready for pickup.</div>
+        </div>
+      </button>
+      <button class="option-btn" onclick="goTo('page-3-pickup-grocery')">
+        <div class="option-icon">🛒</div>
+        <div class="option-text">
+          <div class="option-name">Groceries</div>
+          <div class="option-desc">A store or grocery order that is already paid and ready for pickup.</div>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════
+  STEP 2B — Payment: what type?
+══════════════════════════ -->
+<div class="page" id="page-2-payment">
+  <div class="card">
+    <button class="back-link" onclick="goTo('page-1')">← Back</button>
+    <div class="progress">
+      <div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+      <span class="progress-label">Step 2 of 4</span>
+    </div>
+    <div class="question">What would you like us to get?</div>
+    <div class="question-sub">Select the type of items you want.</div>
+
+    <div class="options-list">
+      <button class="option-btn" onclick="goTo('page-3-payment-food')">
+        <div class="option-icon">🍔</div>
+        <div class="option-text">
+          <div class="option-name">Food</div>
+          <div class="option-desc">We'll pick up food from a restaurant for you.</div>
+        </div>
+      </button>
+      <button class="option-btn" onclick="goTo('page-3-payment-grocery')">
+        <div class="option-icon">🛒</div>
+        <div class="option-text">
+          <div class="option-name">Groceries</div>
+          <div class="option-desc">We'll shop for your grocery items and bring them to you.</div>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════
+  STEP 3 — Pickup · Food
+══════════════════════════ -->
+<div class="page" id="page-3-pickup-food">
+  <div class="card">
+    <button class="back-link" onclick="goTo('page-2-pickup')">← Back</button>
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div>
+      <span class="progress-label">Step 3 of 4</span>
+    </div>
+    <div class="question">📦 Pickup &amp; Delivery — Food</div>
+    <div class="question-sub">Tell us about your restaurant order.</div>
+
+    <div class="pricing-box">
+      <div class="pricing-title">🚀 Delivery Pricing</div>
+      <div class="pricing-row"><span class="pricing-distance">Under 1 mile</span><span class="pricing-amount">$5.00</span></div>
+      <div class="pricing-row"><span class="pricing-distance">1 – 2 miles</span><span class="pricing-amount">$7.00</span></div>
+      <div class="pricing-row"><span class="pricing-distance">2 – 3 miles</span><span class="pricing-amount">$10.00</span></div>
+      <div class="pricing-note">Distance is calculated from the pickup location to AVA Arts District.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Restaurant Name</label>
+      <input type="text" id="puf-store" autocomplete="off" />
+    </div>
+    <div class="form-group">
+      <label>Restaurant Address</label>
+      <input type="text" id="puf-addr" autocomplete="off" />
+      <div class="input-hint">Please use the location closest to AVA Arts District.</div>
+    </div>
+    <div class="form-group">
+      <label>Your Apartment Number</label>
+      <input type="text" id="puf-apt" autocomplete="off" />
+      <div class="input-hint">Delivery will be to AVA Arts District.</div>
+    </div>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="puf-name" autocomplete="name" />
+    </div>
+    <div class="form-group">
+      <label>Your Phone Number</label>
+      <input type="tel" id="puf-phone" autocomplete="tel" inputmode="tel" />
+    </div>
+    <div class="form-group">
+      <label>Special Instructions <span style="font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <textarea id="puf-notes"></textarea>
+    </div>
+    <button class="btn" onclick="submitForm('puf','Pickup & Delivery','Food','Restaurant',false)">Submit Order →</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════
+  STEP 3 — Pickup · Groceries
+══════════════════════════ -->
+<div class="page" id="page-3-pickup-grocery">
+  <div class="card">
+    <button class="back-link" onclick="goTo('page-2-pickup')">← Back</button>
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div>
+      <span class="progress-label">Step 3 of 4</span>
+    </div>
+    <div class="question">📦 Pickup &amp; Delivery — Groceries</div>
+    <div class="question-sub">Tell us about your grocery order.</div>
+
+    <div class="pricing-box">
+      <div class="pricing-title">🚀 Delivery Pricing</div>
+      <div class="pricing-row"><span class="pricing-distance">Under 1 mile</span><span class="pricing-amount">$5.00</span></div>
+      <div class="pricing-row"><span class="pricing-distance">1 – 2 miles</span><span class="pricing-amount">$7.00</span></div>
+      <div class="pricing-row"><span class="pricing-distance">2 – 3 miles</span><span class="pricing-amount">$10.00</span></div>
+      <div class="pricing-note">Distance is calculated from the pickup location to AVA Arts District.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Store Name</label>
+      <input type="text" id="pug-store" autocomplete="off" />
+    </div>
+    <div class="form-group">
+      <label>Store Address</label>
+      <input type="text" id="pug-addr" autocomplete="off" />
+      <div class="input-hint">Please use the location closest to AVA Arts District.</div>
+    </div>
+    <div class="form-group">
+      <label>Your Apartment Number</label>
+      <input type="text" id="pug-apt" autocomplete="off" />
+      <div class="input-hint">Delivery will be to AVA Arts District.</div>
+    </div>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="pug-name" autocomplete="name" />
+    </div>
+    <div class="form-group">
+      <label>Your Phone Number</label>
+      <input type="tel" id="pug-phone" autocomplete="tel" inputmode="tel" />
+    </div>
+    <div class="form-group">
+      <label>Special Instructions <span style="font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <textarea id="pug-notes"></textarea>
+    </div>
+    <button class="btn" onclick="submitForm('pug','Pickup & Delivery','Groceries','Store',false)">Submit Order →</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════
+  STEP 3 — Payment · Food
+══════════════════════════ -->
+<div class="page" id="page-3-payment-food">
+  <div class="card">
+    <button class="back-link" onclick="goTo('page-2-payment')">← Back</button>
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div>
+      <span class="progress-label">Step 3 of 4</span>
+    </div>
+    <div class="question">🛍️ Payment Upon Delivery — Food</div>
+    <div class="question-sub">Tell us what you want and where to get it.</div>
+
+    <div class="pricing-box">
+      <div class="pricing-title">🏷️ Service Fee</div>
+      <div class="pricing-row"><span class="pricing-distance">All Restaurants</span><span class="pricing-amount">$10.00</span></div>
+      <div class="pricing-note">This service is for restaurants that don't offer online ordering or prepay (like In-N-Out). If your restaurant lets you order and pay ahead of time, use our Pickup &amp; Delivery option instead — it's cheaper!</div>
+      <div class="pricing-note">Service fee is in addition to the cost of your food. You pay for everything upon delivery.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Restaurant Name</label>
+      <input type="text" id="pdf-store" autocomplete="off" />
+    </div>
+    <div class="form-group">
+      <label>Restaurant Address</label>
+      <input type="text" id="pdf-addr" autocomplete="off" />
+      <div class="input-hint">Please use the location closest to AVA Arts District.</div>
+    </div>
+    <div class="form-group">
+      <label>Your Apartment Number</label>
+      <input type="text" id="pdf-apt" autocomplete="off" />
+      <div class="input-hint">Delivery will be to AVA Arts District.</div>
+    </div>
+
+    <div class="emphasis-box">
+      <strong>⚠️ Please be very detailed with your order!</strong>
+      Include item names, sizes, quantities, and any customizations (e.g. no onions, extra sauce). The more detail, the better!
+    </div>
+
+    <div class="form-group">
+      <label>Your Order — Be Detailed</label>
+      <textarea id="pdf-items" style="min-height:130px"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="pdf-name" autocomplete="name" />
+    </div>
+    <div class="form-group">
+      <label>Your Phone Number</label>
+      <input type="tel" id="pdf-phone" autocomplete="tel" inputmode="tel" />
+    </div>
+    <div class="form-group">
+      <label>Additional Instructions <span style="font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <textarea id="pdf-notes"></textarea>
+    </div>
+    <button class="btn" onclick="submitForm('pdf','Payment Upon Delivery','Food','Restaurant',true)">Submit Order →</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════
+  STEP 3 — Payment · Groceries
+══════════════════════════ -->
+<div class="page" id="page-3-payment-grocery">
+  <div class="card">
+    <button class="back-link" onclick="goTo('page-2-payment')">← Back</button>
+    <div class="progress">
+      <div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div>
+      <span class="progress-label">Step 3 of 4</span>
+    </div>
+    <div class="question">🛍️ Payment Upon Delivery — Groceries</div>
+    <div class="question-sub">Tell us what you want and where to get it.</div>
+
+    <div class="pricing-box">
+      <div class="pricing-title">🏷️ Service Fee by Store</div>
+      <div class="store-pricing-grid">
+        <div class="store-price-card">
+          <div class="store-name-badge">🌿 Trader Joe's</div>
+          <div class="store-price-val">$15</div>
+          <div class="store-price-label">service fee</div>
+        </div>
+        <div class="store-price-card">
+          <div class="store-name-badge">🏬 Costco</div>
+          <div class="store-price-val">$30</div>
+          <div class="store-price-label">service fee</div>
+        </div>
+      </div>
+      <div class="pricing-note">Service fee is in addition to the cost of your items. You pay for everything upon delivery.</div>
+      <div class="pricing-note">Stores like Target, Whole Foods, and Ralphs offer online ordering with pickup. Use our Pickup &amp; Delivery option instead — it's cheaper! We'll pick up from the closest location to AVA Arts District.</div>
+    </div>
+
+    <div class="form-group">
+      <label>Store Name</label>
+      <input type="text" id="pdg-store" autocomplete="off" />
+    </div>
+    <div class="form-group">
+      <label>Store Address</label>
+      <input type="text" id="pdg-addr" autocomplete="off" />
+      <div class="input-hint">Please use the location closest to AVA Arts District.</div>
+    </div>
+    <div class="form-group">
+      <label>Your Apartment Number</label>
+      <input type="text" id="pdg-apt" autocomplete="off" />
+      <div class="input-hint">Delivery will be to AVA Arts District.</div>
+    </div>
+
+    <div class="emphasis-box">
+      <strong>⚠️ Please be very detailed with your items!</strong>
+      Include brand names, sizes, flavors, and quantities. The more detail you give us, the better!
+    </div>
+
+    <div class="form-group">
+      <label>Your Items — Be Detailed</label>
+      <textarea id="pdg-items" style="min-height:130px"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="pdg-name" autocomplete="name" />
+    </div>
+    <div class="form-group">
+      <label>Your Phone Number</label>
+      <input type="tel" id="pdg-phone" autocomplete="tel" inputmode="tel" />
+    </div>
+    <div class="form-group">
+      <label>Additional Instructions <span style="font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <textarea id="pdg-notes"></textarea>
+    </div>
+    <button class="btn" onclick="submitForm('pdg','Payment Upon Delivery','Groceries','Store',true)">Submit Order →</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════
+  STEP 4 — Confirmation
+══════════════════════════ -->
+<div class="page" id="page-success">
+  <div class="card success-card">
+    <div class="success-icon">✓</div>
+    <div class="question" style="margin-bottom:6px">Order Sent!</div>
+    <div class="question-sub">Your order has been sent to us automatically. We'll reach out shortly to confirm!</div>
+
+    <div class="sms-note">
+      <strong>📱 Need to reach us?</strong>
+      Text us directly at <a href="sms:+13013950442" style="color:#2E7D32;font-weight:700">(301) 395-0442</a>.
+    </div>
+
+    <div class="order-summary" id="success-summary"></div>
+
+    <div id="total-owed" style="background: linear-gradient(135deg, #FFF3E0, #FFE8D0); border: 2px solid var(--orange); border-radius: 12px; padding: 16px 18px; margin-bottom: 18px; text-align: left;"></div>
+
+    <button class="btn" style="background:var(--warm-gray);color:var(--dark);box-shadow:none;border:2px solid var(--border)" onclick="startOver()">Place Another Order</button>
+  </div>
+</div>
+
+
+<script>
+  const PHONE = '13013950442';
+
+  function goTo(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function v(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : '';
+  }
+
+  async function submitForm(prefix, serviceLabel, typeLabel, storeLabel, requiresItems) {
+    const store = v(prefix + '-store');
+    const addr  = v(prefix + '-addr');
+    const apt   = v(prefix + '-apt');
+    const name  = v(prefix + '-name');
+    const phone = v(prefix + '-phone');
+    const items = requiresItems ? v(prefix + '-items') : '';
+    const notes = v(prefix + '-notes');
+
+    // Validate required fields
+    if (!store || !addr || !apt || !name || !phone) {
+      alert('Please fill in all required fields before submitting.');
+      return;
+    }
+    if (requiresItems && !items) {
+      alert('Please list your items or order before submitting.');
+      return;
+    }
+
+    // ── Disable submit button & show loading state ──
+    const submitBtn = event.target;
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    submitBtn.style.opacity = '0.7';
+
+    try {
+      // ── Send order to backend API ──
+      const response = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service: serviceLabel,
+          type: typeLabel,
+          storeLabel: storeLabel,
+          storeName: store,
+          storeAddress: addr,
+          apartment: apt,
+          customerName: name,
+          customerPhone: phone,
+          items: items || null,
+          notes: notes || null
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Something went wrong.');
+      }
+
+      // ── Update confirmation page ──
+      document.getElementById('success-summary').innerHTML =
+        '<strong>Service:</strong> ' + serviceLabel + '<br>' +
+        '<strong>Type:</strong> ' + typeLabel + '<br>' +
+        '<strong>' + storeLabel + ':</strong> ' + store + '<br>' +
+        '<strong>' + storeLabel + ' Address:</strong> ' + addr + '<br>' +
+        '<strong>Deliver to:</strong> AVA Arts District, Apt ' + apt + '<br>' +
+        '<strong>Name:</strong> ' + name + '<br>' +
+        '<strong>Phone:</strong> ' + phone +
+        (items ? '<br><strong>Items / Order:</strong><br>' + items.replace(/\n/g, '<br>') : '') +
+        (notes ? '<br><strong>Notes:</strong> ' + notes : '');
+
+      // ── Build total owed section ──
+      let totalHtml = '';
+      if (serviceLabel === 'Pickup & Delivery') {
+        totalHtml = '<div style="font-family:Sora,sans-serif;font-weight:700;font-size:1rem;color:#FF6B2B;margin-bottom:6px">💰 What You\'ll Owe</div>' +
+          '<div style="font-size:0.9rem;color:#4A3728;line-height:1.6">' +
+          'Your service fee will be <strong>$5, $7, or $10</strong> depending on the distance from the pickup location to AVA Arts District.' +
+          '<br>We\'ll confirm your exact fee before pickup.</div>';
+      } else if (serviceLabel === 'Payment Upon Delivery' && typeLabel === 'Food') {
+        totalHtml = '<div style="font-family:Sora,sans-serif;font-weight:700;font-size:1rem;color:#FF6B2B;margin-bottom:6px">💰 What You\'ll Owe</div>' +
+          '<div style="font-size:0.9rem;color:#4A3728;line-height:1.6">' +
+          '<strong>$10.00 service fee</strong> + the cost of your food.' +
+          '<br>We\'ll send you a photo of the receipt so you know the exact amount before delivery.</div>';
+      } else if (serviceLabel === 'Payment Upon Delivery' && typeLabel === 'Groceries') {
+        let groceryFee = '$10.00';
+        const storeLower = store.toLowerCase();
+        if (storeLower.includes('trader') || storeLower.includes('joe')) {
+          groceryFee = '$15.00';
+        } else if (storeLower.includes('costco')) {
+          groceryFee = '$30.00';
+        }
+        totalHtml = '<div style="font-family:Sora,sans-serif;font-weight:700;font-size:1rem;color:#FF6B2B;margin-bottom:6px">💰 What You\'ll Owe</div>' +
+          '<div style="font-size:0.9rem;color:#4A3728;line-height:1.6">' +
+          '<strong>' + groceryFee + ' service fee</strong> + the cost of your groceries.' +
+          '<br>We\'ll send you a photo of the receipt so you know the exact amount before delivery.</div>';
+      }
+      document.getElementById('total-owed').innerHTML = totalHtml;
+
+      // Show success page
+      goTo('page-success');
+
+    } catch (err) {
+      alert('⚠️ ' + err.message + '\n\nPlease try again, or call/text us directly at (301) 395-0442.');
+    } finally {
+      // Re-enable submit button
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+      submitBtn.style.opacity = '1';
+    }
+  }
+
+  function startOver() {
+    document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+    goTo('page-1');
+  }
+</script>
+
+</body>
+</html>
