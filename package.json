@@ -1,7 +1,7 @@
 {
-  "name": "neighborhood-delivery-backend",
+  "name": "deliveryapp",
   "version": "1.0.0",
-  "description": "Neighborhood Delivery — email order notifications",
+  "description": "PickUp.Shop.Deliver. — order notifications via Resend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -10,6 +10,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "nodemailer": "^6.9.16"
+    "resend": "^4.1.2"
   }
 }

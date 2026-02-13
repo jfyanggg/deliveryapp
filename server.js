@@ -1,29 +1,18 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_ADDRESS,
-    pass: process.env.GMAIL_APP_PASSWORD
-  }
-});
-
-transporter.verify()
-  .then(() => console.log('✅ Gmail connection verified'))
-  .catch(err => console.error('❌ Gmail connection failed:', err.message));
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Health check — used by loading screen to detect when server is ready ──
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
@@ -56,21 +45,28 @@ app.post('/api/order', async (req, res) => {
             ${notes ? `<tr><td colspan="2" style="padding: 16px 0 6px; color: #888; font-size: 13px; text-transform: uppercase;">📝 Notes</td></tr><tr><td colspan="2" style="padding: 12px 14px; background: #F5F5F5; border-radius: 8px; font-style: italic;">${notes}</td></tr>` : ''}
           </table>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-          <p style="font-size: 13px; color: #aaa; text-align: center; margin: 0;">Order received at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}</p>
+          <p style="font-size: 13px; color: #aaa; text-align: center; margin: 0;">PickUp.Shop.Deliver. — Order received at ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}</p>
         </div>
       </div>`;
 
-    let text = `NEW ORDER\nService: ${service}\nType: ${type}\n${storeLabel}: ${storeName}\nAddress: ${storeAddress}\nDeliver to: AVA Arts District, Apt ${apartment}\nCustomer: ${customerName}\nPhone: ${customerPhone}`;
+    let text = `NEW ORDER — PickUp.Shop.Deliver.\nService: ${service}\nType: ${type}\n${storeLabel}: ${storeName}\nAddress: ${storeAddress}\nDeliver to: AVA Arts District, Apt ${apartment}\nCustomer: ${customerName}\nPhone: ${customerPhone}`;
     if (items) text += `\nOrder:\n${items}`;
     if (notes) text += `\nNotes: ${notes}`;
 
-    await transporter.sendMail({
-      from: `"Pick Up. Shop. Deliver." <${process.env.GMAIL_ADDRESS}>`,
-      to: process.env.NOTIFICATION_EMAIL || process.env.GMAIL_ADDRESS,
-      subject, text, html
+    const { data, error } = await resend.emails.send({
+      from: 'PickUp.Shop.Deliver. <onboarding@resend.dev>',
+      to: process.env.NOTIFICATION_EMAIL,
+      subject: subject,
+      text: text,
+      html: html
     });
 
-    console.log(`✅ Order email sent — ${customerName} | ${storeName}`);
+    if (error) {
+      console.error('❌ Resend error:', error);
+      return res.status(500).json({ success: false, error: 'Failed to send order. Please call us directly.' });
+    }
+
+    console.log(`✅ Order email sent — ${customerName} | ${storeName} (ID: ${data.id})`);
     res.json({ success: true, message: "Order received! We'll reach out shortly." });
 
   } catch (err) {
@@ -84,6 +80,6 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\n🛵 Pick Up. Shop. Deliver. server running on http://localhost:${PORT}`);
-  console.log(`   Orders will be emailed to: ${process.env.NOTIFICATION_EMAIL || process.env.GMAIL_ADDRESS}\n`);
+  console.log(`\n🛵 PickUp.Shop.Deliver. server running on http://localhost:${PORT}`);
+  console.log(`   Orders will be emailed to: ${process.env.NOTIFICATION_EMAIL}\n`);
 });
